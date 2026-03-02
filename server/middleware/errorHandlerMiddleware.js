@@ -1,0 +1,11 @@
+const errorHandler = (err,req,res,next)=> {
+
+    let statusCode = res.statusCode <= 200 ? 500 : res.statusCode 
+
+    res.json({
+        message : err.message,
+        stack : process.env.NODE_ENV === "PRODUCTION" ? null : err.stack
+    })   
+}
+
+export default errorHandler

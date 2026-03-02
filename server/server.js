@@ -1,7 +1,12 @@
-import express from "express"
+import express, { json, urlencoded } from "express"
 import dotenv from "dotenv"
 import colors from "colors"
 import connectDB from "./config/dbConfig.js"
+
+
+// LOCAL-IMPORTS
+import authRoutes from "./routes/authRoutes.js"
+import errorHandler from "./middleware/errorHandlerMiddleware.js"
 
 dotenv.config()
 
@@ -12,6 +17,10 @@ const app = express()
 //DB-CONNECTION
 connectDB()
 
+// BODY-PARSER
+app.use(express.urlencoded())
+app.use(express.json())
+
 // DEFAULT-ROUTES
 app.get("/",(req,res)=>{
     res.json({
@@ -19,6 +28,11 @@ app.get("/",(req,res)=>{
     })
 })
 
+// AUTH-ROUTES
+app.use("/api/auth",authRoutes)
+
+// ERROR-HANDLER
+app.use(errorHandler)
 app.listen(PORT,()=>{
     console.log(`SERVER IS RUNNING AT PORT NO. : ${PORT}`.bgGreen.black)
 })

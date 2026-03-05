@@ -6,6 +6,7 @@ import connectDB from "./config/dbConfig.js"
 
 // LOCAL-IMPORTS
 import authRoutes from "./routes/authRoutes.js"
+import followRoutes from "./routes/followRoutes.js"
 import errorHandler from "./middleware/errorHandlerMiddleware.js"
 
 dotenv.config()
@@ -30,6 +31,8 @@ app.get("/",(req,res)=>{
 
 // AUTH-ROUTES
 app.use("/api/auth",authRoutes)
+// FOLLOW-ROUTES
+app.use("/api/follow",followRoutes)
 
 // ERROR-HANDLER
 app.use(errorHandler)

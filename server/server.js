@@ -8,7 +8,9 @@ import connectDB from "./config/dbConfig.js"
 import authRoutes from "./routes/authRoutes.js"
 import followRoutes from "./routes/followRoutes.js"
 import errorHandler from "./middleware/errorHandlerMiddleware.js"
-
+import profileRoutes from "./routes/profileRoutes.js"
+import adminRoutes from "./routes/adminRoutes.js"
+import postRoutes from "./routes/postRoutes.js"
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
@@ -31,8 +33,18 @@ app.get("/",(req,res)=>{
 
 // AUTH-ROUTES
 app.use("/api/auth",authRoutes)
+
 // FOLLOW-ROUTES
-app.use("/api/follow",followRoutes)
+app.use("/api/user",followRoutes)
+
+// PROFILE-ROUTES
+app.use("/api/profile",profileRoutes)
+
+// ADMIN-ROUTES
+app.use("/api/admin",adminRoutes)
+
+// POST -ROUTES
+app.use("/api/post  ",postRoutes)
 
 // ERROR-HANDLER
 app.use(errorHandler)

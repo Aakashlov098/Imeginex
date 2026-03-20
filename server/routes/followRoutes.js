@@ -4,6 +4,7 @@ import protect from "../middleware/authMiddleware.js"
 
 const router = express.Router()
 
-router.put("/:uid",protect,followController.followUserReqest)
+router.put("/follow/:uid",protect.forUser,followController.followUserReqest)
+router.put("/unfollow/:uid",protect.forUser,followController.unfollowUserReqest)
 
 export default router

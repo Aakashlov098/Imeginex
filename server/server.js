@@ -12,6 +12,7 @@ import profileRoutes from "./routes/profileRoutes.js"
 import adminRoutes from "./routes/adminRoutes.js"
 import postRoutes from "./routes/postRoutes.js"
 import savedPostRoutes from "./routes/savePostRoutes.js"
+
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
@@ -49,6 +50,8 @@ app.use("/api/posts",postRoutes)
 
 //SAVED-POST'S
 app.use("/api/saved-post",savedPostRoutes)
+
+
 // ERROR-HANDLER
 app.use(errorHandler)
 app.listen(PORT,()=>{

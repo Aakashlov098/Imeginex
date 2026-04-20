@@ -3,6 +3,7 @@ import mongoose, { model } from "mongoose";
 const userSchema = new mongoose.Schema({
     name : {
         type : String,
+        unique : true,
         required : [true,"Please Enter Your Name"]
     },
     email : {

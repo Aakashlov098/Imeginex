@@ -13,10 +13,11 @@ const registerUser = async(req,res)=>{
     }
 
     // check if user alredy Exist
+    const userExist =await User.findOne({name : name})
     const emailExist =await User.findOne({email : email})
     const phoneExist =await User.findOne({phone : phone})
 
-    if(emailExist || phoneExist){
+    if(emailExist || phoneExist || userExist){
         res.status(409)
         throw new Error("User Alredy Exist")
     }
@@ -63,6 +64,7 @@ const loginUser = async(req,res)=>{
         res.status(200).json({
         name : user.name,
         id   : user._id,
+        bio  : user.bio,
         email : user.email,
         phone : user.phone,
         isAdmin : user.isAdmin,

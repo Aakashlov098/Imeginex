@@ -6,81 +6,60 @@ import uploadToCloudinary from "../middleware/cloudinaryMiddleware.js";
 import Post from "../models/postModel.js";
 import User from "../models/userModels.js";
 import Report from "../models/reportModel.js";
+import cloudinary from "cloudinary";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Take_promt
-// Generate Image With AI Model
-// Store On  Local Server
-// Upload On Cloudinary
-// Remove From Server
-// Repond With Caption And Post
 const generateAndPost = async (req, res) => {
-  let userId = req.user.id;
-  let newPost;
-
   try {
-    // get-Prompt
-    const { prompt, caption } = req.body;
+    const { prompt } = req.body;
+    let userId = req.user.id;
 
-    // check if Prompt is Coming in body
-    if (!prompt || !caption) {
-      res.status(409);
-      throw new Error("Kindly Provide The To Generate Prompt!");
+    // check if user Exist
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User Not Found!");
     }
-    // Initialize Google Gen Ai Instance
-    const ai = new GoogleGenAI({});
 
-    // API Call to generate Image
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-image",
-      contents: prompt,
+    // check if user have Enough Credits
+    if (user.credits < 1) {
+      res.status(409);
+      throw new Error("Not Enough Credits!");
+    }
+    // Better parameters add kiye
+    const enhancedPrompt = `${prompt}, photorealistic, ultra detailed, 8K, DSLR photography, natural lighting, real photograph, not cartoon, not animated, not illustration`;
+
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?model=flux-realism&width=1024&height=1024&nologo=true&enhance=true`;
+    // Directly Cloudinary pe upload karo
+    const uploadResult = await cloudinary.v2.uploader.upload(imageUrl, {
+      folder: "generated-images",
     });
 
-    // loop Through Correct Response
-    for (const part of response.candidates[0].content.parts) {
-      if (part.text) {
-        console.log(part.text);
-      } else if (part.inlineData) {
-        const imageData = part.inlineData.data;
-        const buffer = Buffer.from(imageData, "base64");
-        // fs.writeFileSync("generate-Content/"+crypto.randomUUID()+".png", buffer);
-        // console.log("Image saved as gemini-native-image.png");
+    // Create Post
+    const newPost = new Post({
+      user: userId,
+      imageLink: uploadResult.secure_url,
+      prompt: prompt,
+    });
 
-        // save Locally
-        const fileName = crypto.randomUUID() + ".png";
-        const filePath = path.join(__dirname, "../generate-Content", fileName);
+    //save Post To Db
+    await newPost.save();
+    // Aggrigate User Details In newPost Object
+    await newPost.populate("user");
 
-        // Write File into A Server
-        fs.writeFileSync(filePath, buffer);
-        console.log(filePath);
-
-        // Upload Post
-        const imageLink = await uploadToCloudinary(filePath);
-        console.log(imageLink);
-
-        // Remove-Image From the Server
-        fs.unlinkSync(filePath);
-
-        // Create Post
-        newPost = new Post({
-          user: userId,
-          imageLink: imageLink.secure_url,
-          caption: caption,
-        });
-
-        // save Post To Db
-        await newPost.save();
-        // Aggrigate User Details In newPost Object
-        await newPost.populate("user");
-      }
-    }
+    // Update Credits
+    await User.findByIdAndUpdate(
+      userId,
+      { credits: user.credits - 1 },
+      { new: true },
+    );
 
     res.status(201).json(newPost);
   } catch (error) {
-    res.status(409);
-    throw new Error("Image Generation Failed !!" + error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -105,7 +84,7 @@ const getPost = async (req, res) => {
 };
 
 const likesAndUnlikePost = async (req, res) => {
-  let aakash;
+  
   let currentUser = await User.findById(req.user._id);
 
   // check if user-Exist or Not
@@ -122,63 +101,59 @@ const likesAndUnlikePost = async (req, res) => {
     throw new Error("Post Not Found!!");
   }
 
-  //check if Alredy Like
   if (post.likes.includes(currentUser._id)) {
-    // dislike
-    const updatedLikelist = post.likes.filter(
-      (like) => like._id.toString() !== currentUser._id.toString(),
-    );
-    post.likes = updatedLikelist;
-    await post.save();
+    // Dislike
+    await Post.findByIdAndUpdate(req.params.pid, {
+      $pull: { likes: currentUser._id },
+    });
   } else {
-    //like
-    //Add follower in liked
-    await post.likes.push(currentUser._id);
-    await post.save();
+    // Like
+    await Post.findByIdAndUpdate(req.params.pid, {
+      $push: { likes: currentUser._id },
+    });
   }
-  await Post.populate(post, { path: "likes" });
 
-  res.status(200).json(post);
+  const updatedPost = await Post.findById(req.params.pid).populate("user");
+  res.status(200).json(updatedPost);
 };
 
-const reportPost = async (req,res) => {
-  const {text} = req.body
-  const userId = req.user._id
-  const postId = req.params.pid
+const reportPost = async (req, res) => {
+  const { text } = req.body;
+  const userId = req.user._id;
+  const postId = req.params.pid;
 
-  console.log(text,userId,postId)
-  if(!text){
-    res.status(409)
-    throw new Error("Please Enter Text!")
+  console.log(text, userId, postId);
+  if (!text) {
+    res.status(409);
+    throw new Error("Please Enter Text!");
   }
 
   const alreadyReported = await Report.findOne({
-  user: userId,
-  post: postId
-})
+    user: userId,
+    post: postId,
+  });
 
-if (alreadyReported) {
-  res.status(409)
-  throw new Error("You already reported this post")
-}
- 
-    const newReport = new Report({
-    user : userId,
-    post : postId,
-    text : text
-  })
-
-  await newReport.save()
-  await newReport.populate('user')
-  await newReport.populate('post')
-
-
-  if(!newReport){
-    res.status(409)
-    throw new Error("Unale To Report This Post!!")
+  if (alreadyReported) {
+    res.status(409);
+    throw new Error("You already reported this post");
   }
 
-  res.status(201).json(newReport)
+  const newReport = new Report({
+    user: userId,
+    post: postId,
+    text: text,
+  });
+
+  await newReport.save();
+  await newReport.populate("user");
+  await newReport.populate("post");
+
+  if (!newReport) {
+    res.status(409);
+    throw new Error("Unale To Report This Post!!");
+  }
+
+  res.status(201).json(newReport);
 };
 
 const postController = {
@@ -186,6 +161,6 @@ const postController = {
   getPosts,
   getPost,
   likesAndUnlikePost,
-  reportPost
+  reportPost,
 };
 export default postController;

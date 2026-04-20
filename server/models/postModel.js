@@ -14,7 +14,7 @@ const postSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : "User"
     }],
-    caption : {
+    prompt : {
         type : String,
         required : true
     },

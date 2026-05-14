@@ -52,7 +52,7 @@ const Navbar = () => {
 
         <div className="relative group ml-1">
           <button className="flex items-center gap-1.5 p-1 rounded-full hover:bg-white/5 transition-colors">
-            <UserAvatar username={user.name.slice(0,1)} size="sm" />
+            <UserAvatar username={user?.name?.slice(0,1)} size="sm" />
             <ChevronDown className="w-4 h-4 text-white/50" />
           </button>
           

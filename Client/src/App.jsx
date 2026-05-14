@@ -13,6 +13,7 @@ import { ToastContainer } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import NotFoundPage from './components/NotFoundPage';
 import SmoothFollower from './components/smoothFollower';
+import LandingPage from './pages/LandingPage';
 
 // Admin imports — 
 import PrivateAdminComponent from './pages/admin/PrivateAdminComponent';
@@ -21,13 +22,15 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminPosts from './pages/admin/AdminPosts';
 import AdminReports from './pages/admin/AdminReports';
 
+
 function App() {
   
 
   const { user } = useSelector((state) => state.auth);
   const isAuthenticated = !!user;
-
-
+  // const isAuthenticated = user?.token ? true : false;
+  console.log(user);
+  console.log(isAuthenticated);
 
   return (
     <>
@@ -36,16 +39,20 @@ function App() {
 
       <Routes>
 
+         <Route path="/" element={
+            isAuthenticated ? <Navigate to="/home" replace /> : <LandingPage />
+          } />
+
         <Route path="/login" element={
-          isAuthenticated ? <Navigate to="/" replace /> : <LoginPage  />
+          isAuthenticated ? <Navigate to="/home" replace /> : <LoginPage  />
         } />
         <Route path="/register" element={
-          isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage  />
+          isAuthenticated ? <Navigate to="/home" replace /> : <RegisterPage  />
         } />
         
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
           <Route element={<MainLayout  />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/generate" element={<GeneratePage />} />
             <Route path="/profile/:username" element={<ProfilePage />} />

@@ -1,12 +1,12 @@
 import { Link, NavLink } from 'react-router-dom';
-import { LayoutGrid, Compass, Sparkles, User } from 'lucide-react';
+import { LayoutGrid, Compass, Sparkles, User, Home } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 import { useSelector } from 'react-redux';
 
 const Sidebar = () => {
   const {user,profile} = useSelector((state)=> state.auth)
   const navItems = [
-    { label: 'Home', icon: LayoutGrid, path: '/' },
+    { label: user?.isAdmin ? 'Dashboard' : 'Home', icon: user?.isAdmin ? LayoutGrid : Home , path:  user.isAdmin ? "/admin/dashboard" : '/' },
     { label: 'Explore', icon: Compass, path: '/explore' },
     { label: 'Generate', icon: Sparkles, path: '/generate' },
     { label: 'My Profile', icon: User, path: `/profile/${user.name}` },

@@ -1,16 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
 import MasonryGrid from "../components/MasonryGrid";
 import { useDispatch, useSelector } from "react-redux";
-import { getPosts } from "../features/Post/postSlice";
+import { getPosts, resetPostState } from "../features/Post/postSlice";
 import Loader from "../components/Loader";
-import { getProfile } from "../features/auth/authSlice";
+import { getProfile, logoutUser, resetAuthState } from "../features/auth/authSlice";
 import { toast } from "react-toastify";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const { postLoading, postSuccess, postErrorMessage, postError, posts} = useSelector((state) => state.post);
   const { profile,user,isError,message} = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("Latest");
   
   
@@ -20,21 +21,32 @@ const HomePage = () => {
     )
   ).filter(post => post.isPublished)
 
-
   
 
   useEffect(() => {
 
-    // GET POST
-    dispatch(getPosts());
+    // Check Error
+    if (postError && postErrorMessage) {
+    toast.error(postErrorMessage, { position: "top-center" });
+    dispatch(resetPostState());  
+    dispatch(logoutUser());  
+    navigate("/login")
+    return;
+  }
+    if (isError && message) {
+    toast.error(message, { position: "top-center" });
+    dispatch(resetAuthState());
+    dispatch(logoutUser());
+    navigate("/login")
+    return;
+  }
+
+  // Get-Post's
+  dispatch(getPosts());
 
      // Fetch Profile
     if (user) {
       dispatch(getProfile(user?.name))
-    }
-
-    if (postError && postErrorMessage || isError && message) {
-      toast.error(postErrorMessage || message, { position: "top-center" })
     }
   }, [user,postError,postErrorMessage,isError,message]);
 

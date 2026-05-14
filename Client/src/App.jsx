@@ -59,6 +59,7 @@ function App() {
          <Route path='dashboard' element={<AdminDashboard />} />
          <Route path='posts' element={<AdminPosts />} />
          <Route path='reports' element={<AdminReports />} />
+         <Route path="/admin/reports/:id" element={<PostDetailPage />} />
          <Route path='users' element={<AdminUsers />} />
         </Route>
 

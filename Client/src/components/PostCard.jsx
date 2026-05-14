@@ -10,6 +10,7 @@ const PostCard = ({ post,index }) => {
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const [likes, setLikes] = useState(post.likes);
 
+
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikes((prev) => (isLiked ? prev - 1 : prev + 1));

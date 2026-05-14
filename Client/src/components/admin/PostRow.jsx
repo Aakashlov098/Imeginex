@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
 import ActionMenu from './ActionMenu';
+import { publishUnPublishPost } from '../../features/admin/adminSlice';
 
 export default function PostRow({ post, onRemove, onRestore }) {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ export default function PostRow({ post, onRemove, onRestore }) {
       ? { label: 'Restore Post', icon: '🔄', onClick: () => onRestore(post.id) }
       : { label: 'Remove Post', icon: '🗑️', onClick: () => onRemove(post.id), variant: 'danger' }
   ];
+
+  const handlePublishUnpublishPost = (pid) => {
+    dispatch(publishUnPublishPost(pid))
+  }
 
   return (
     <tr className="hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-0 group">

@@ -52,13 +52,37 @@ useEffect(() => {
   }
 }, [postSuccess, postError, postErrorMessage]);
 
-  if(postLoading){
-   return <Loader/>
-  }
 
 
   return (
     <div className="p-6 md:p-8 max-w-4xl mx-auto pb-24">
+     {postLoading && (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    zIndex: 9999,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '24px'
+  }}>
+    <Loader2 className="w-16 h-16 text-violet-400 animate-spin" />
+    <div style={{ textAlign: 'center' }}>
+      <p style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
+        Creating Your Masterpiece...
+      </p>
+      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginTop: '8px' }}>
+        Please wait, your image is being generated
+      </p>
+    </div>
+  </div>
+)}
+
       <div className="flex items-center gap-3 mb-8">
         <div className="p-2.5 bg-violet-600/20 rounded-xl border border-violet-500/30">
           <Sparkles className="w-6 h-6 text-violet-400" />

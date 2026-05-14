@@ -10,9 +10,17 @@ const postSlice = createSlice({
         postLoading : false,
         postSuccess : false,
         postError : false,
-        postErrorMessage : ""
+        postErrorMessage : "",
+        message : ""
 },
-    reducers : {},
+    reducers : {
+        resetPostState: (state) => {
+            state.postError = false
+            state.postErrorMessage = ""
+            state.postSuccess = false
+            state.massage = ""
+        }
+    },
     extraReducers : (builder)=>{
         builder
         .addCase(generatePost.pending ,(state,action)=>{
@@ -83,9 +91,26 @@ const postSlice = createSlice({
             state.postError = true,
             state.postErrorMessage = action.payload
         })
+        .addCase(reportPost.pending ,(state,action)=>{
+            state.postLoading = true,
+            state.postSuccess = false,
+            state.postError = false
+        })
+        .addCase(reportPost.fulfilled ,(state,action)=>{
+            state.postLoading = false,
+            state.postSuccess = true,
+            state.message = action.payload.message
+            state.postError = false
+        })
+        .addCase(reportPost.rejected ,(state,action)=>{
+            state.postLoading = false,
+            state.postSuccess = false,
+            state.postError = true,
+            state.postErrorMessage = action.payload
+        })
     }
-})
-
+})  
+export const { resetPostState } = postSlice.actions
 export default postSlice.reducer
 
 // GENERATE POST
@@ -138,3 +163,17 @@ export const likeUnlikePost = createAsyncThunk("POST/LIKEORUNLIKE",async(pid,thu
     }
 })
 
+// REPORT-POST'S
+export const reportPost = createAsyncThunk("POST/REPORT", async (postDetails, thunkAPI) => {
+
+    let token = thunkAPI.getState().auth.user.Token
+
+    try {
+        return await postService.postReport(postDetails, token)
+    } catch (error) {
+        let message = error.response.data.message
+        return thunkAPI.rejectWithValue(message)
+    }
+
+
+})

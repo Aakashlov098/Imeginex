@@ -50,6 +50,19 @@ const updateLikeUnlike = async (pid,token)=>{
     
 }
 
+const postReport = async (postDetail, token) => {
 
-const postService = {generateAndPostImage,fetchPosts,fetchPost,updateLikeUnlike}
+    let options = {
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    }
+
+    const response = await axios.post(`${API_URL}/${postDetail.id}`, postDetail, options)
+    console.log(response.data)
+    return response.data
+}
+
+
+const postService = {generateAndPostImage,fetchPosts,fetchPost,updateLikeUnlike,postReport}
 export default postService

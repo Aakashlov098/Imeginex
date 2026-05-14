@@ -17,7 +17,12 @@ const authSlice = createSlice({
     isSuccess: false,
     isError: false,
   },
-  reducers: {},
+  reducers: {
+  resetAuthState: (state) => {
+    state.isError = false
+    state.message = ""
+  }
+},
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state, action) => {
@@ -124,6 +129,7 @@ const authSlice = createSlice({
   },
 });
 
+export const { resetAuthState } = authSlice.actions
 export default authSlice.reducer;
 
 // REGISTER-USER

@@ -6,7 +6,7 @@
  "scripts": {
   "server": "node Server/server.js",
   "client": "cd Client && npm run dev",
-  "build": "npm install && cd Client && npm install && npm run build",
+  "build": "npm install && cd Client && npm install --include=dev && npm run build",
   "dev": "concurrently \"npm run server\" \"npm run client\""
 },
   "repository": {
